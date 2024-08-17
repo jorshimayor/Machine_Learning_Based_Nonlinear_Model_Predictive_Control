@@ -57,7 +57,7 @@ This repository contains a Python script that implements a Nonlinear Model Predi
 3. **Monitor the output**:
 
    - The script will print the temperature, concentration, and cooling temperature values to the terminal.
-   - If a web viewer is enabled, the URL will be provided in the terminal output. You can open this in your browser to view real-time plots of the control process.
+   - If a web viewer is enabled, the URL will be provided in the terminal output. You can open this in your browser to view real-time plots of the control process through this url "<https://byu.apmonitor.com/online/169.150.196.103_nmpc/169.150.196.103_nmpc_oper.htm>".
 
 ## Files
 
