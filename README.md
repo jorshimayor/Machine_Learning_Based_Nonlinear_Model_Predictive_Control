@@ -48,6 +48,11 @@ This repository contains a Python script that implements a Nonlinear Model Predi
 
    - Open the `nmpc_controller.py` file.
    - To run the script, press `F5` or click on the `Run` button in the top right corner of the editor.
+   - Alternatively run the command in your termainal:
+
+   ```bash
+   python nmpc_controller.py
+    ```
 
 3. **Monitor the output**:
 
