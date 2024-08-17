@@ -1,0 +1,248 @@
+Model
+  Parameters
+    ! PID set point
+    sp = 320
+  
+    ! Manipulated Variables
+    Cooling_Temp = 280    ! Temperature of cooling jacket (K)
+
+    ! Parameters
+    Flow = 100     ! Volumetric Flowrate (m^3/sec)
+    V = 100     ! Volume of CSTR (m^3)
+    rho = 1000  ! Density of A-B Mixture (kg/m^3)
+    Cp = .239   ! Heat capacity of A-B Mixture (J/kg-K)
+    mdelH = 5e4 ! Heat of reaction for A->B (J/mol)
+                ! E - Activation energy in the 
+                !  Arrhenius Equation (J/mol)
+                ! R - Universal Gas Constant 
+                !  = 8.31451 J/mol-K
+                ! EoverR = E/R
+    EoverR = 8750
+    k0 = 7.2e10 ! Pre-exponential factor (1/sec)
+                ! U - Overall Heat Transfer 
+                !  Coefficient (W/m^2-K)
+                ! A - Area - this value is specific
+                !  for the U calculation (m^2)
+                ! UA = U * A
+    UA = 5e4
+    Feed_Conc = 1     ! Feed Concentration (mol/m^3)
+    Feed_Temp = 350    ! Feed Temperature (K)
+  End Parameters
+
+  Variables
+    ! Differential States
+    Concentration = 0.9, >0, <=1    ! Concentration of A in CSTR (mol/m^3)
+    Temperature  = 305, >0, <=2000  ! Temperature in CSTR (K)
+  End Variables
+
+  Intermediates
+    k = k0*exp(-EoverR/Temperature)
+    rate = k * Concentration >= 0
+  End Intermediates
+
+  Equations
+    ! note: the $ denotes time differential
+    !  (e.g. $x is dx/dt)
+
+    ! mole balance for species A
+    V * $Concentration = Flow*(Feed_Conc-Concentration) - V*rate
+
+    ! energy balance
+    rho*Cp*V * $Temperature = Flow*rho*Cp*(Feed_Temp - Temperature) &
+                            + V*mdelH*rate &
+                            + UA*(Cooling_Temp-Temperature)
+  End Equations
+End Model
+
+File *.plt
+  New Trend
+  SP
+  Temperature
+  Cooling_Temp
+End File
+
+
+File dash.htm
+ <style type="text/css">
+   canvas { border: 1px solid black; }
+ </style>
+
+ <center>
+  <h3>Control the Reactor</h3>
+  <div id="Cooling_Temp_msg"></div>
+  <div id="Temperature_msg"></div>
+
+  <canvas id="myDash"></canvas>
+
+  <script type="text/javascript">
+   var canvas=document.getElementById('myDash');
+   var nxtUpdate = (new Date()).getTime();         // Get current date / time
+   var updFreq = 3;                                // Frequency of update (sec)
+
+   canvas.width = "400";
+   canvas.height = "200";
+
+   nxtUpdate += updFreq*1000;                      // Initialize next update
+   var updInt = setInterval("main_update(canvas)",1000); // Check for updates every second
+   function main_update(canvas) {    var now = (new Date()).getTime();
+    if (now>=nxtUpdate) {      nxtUpdate += updFreq*1000;      get_dbs();
+
+      // retreieve variables of interest
+      var Cooling_Temp = Number(localStorage.getItem("cooling_temp.newval"));
+      var Temperature = Number(localStorage.getItem("temperature.model"));      var Concentration = Number(localStorage.getItem("concentration.model"));
+      var cooling=canvas.getContext('2d');
+      var reactor=canvas.getContext('2d');
+      var inlet=canvas.getContext('2d');
+      var outlet=canvas.getContext('2d');
+      var Cooling_Temp_color;
+      var Temperature_color;
+      var Concentration_color;
+      var text_Cooling_Temp=canvas.getContext('2d');
+      var text_Temperature=canvas.getContext('2d');
+      var text_Conc=canvas.getContext('2d');
+      var cooling_border=canvas.getContext('2d');
+      var reactor_border=canvas.getContext('2d');
+
+      if (Cooling_Temp<260) {
+         Cooling_Temp_color = '#0000FF';
+      } else if (Cooling_Temp<270) {
+         Cooling_Temp_color = '#0066FF';
+      } else if (Cooling_Temp<280) {
+         Cooling_Temp_color = '#00CCFF';
+      } else if (Cooling_Temp<290) {
+         Cooling_Temp_color = '#33FFFF';
+      } else if (Cooling_Temp<300) {
+         Cooling_Temp_color = '#99FFFF';
+      } else if (Cooling_Temp<310) {
+         Cooling_Temp_color = '#FFCCFF';
+      } else if (Cooling_Temp<320) {
+         Cooling_Temp_color = '#FFCCCC';
+      } else if (Cooling_Temp<330) {
+         Cooling_Temp_color = '#FF9999';
+      } else if (Cooling_Temp<340) {
+         Cooling_Temp_color = '#FF6666';
+      } else if (Cooling_Temp<350) {
+         Cooling_Temp_color = '#FF3333';
+      } else {
+         Cooling_Temp_color = '#FF0000';
+      }
+      cooling.fillStyle=Cooling_Temp_color;
+      cooling.fillRect(100,50,200,120);
+      cooling.strokeStyle = "#ffffff";
+      cooling.stroke();
+
+      if (Temperature<260) {
+         Temperature_color = '#0000FF';
+      } else if (Temperature<270) {
+         Temperature_color = '#0066FF';
+      } else if (Temperature<280) {
+         Temperature_color = '#00CCFF';
+      } else if (Temperature<290) {
+         Temperature_color = '#33FFFF';
+      } else if (Temperature<300) {
+         Temperature_color = '#99FFFF';
+      } else if (Temperature<310) {
+         Temperature_color = '#FFCCFF';
+      } else if (Temperature<320) {
+         Temperature_color = '#FFCCCC';
+      } else if (Temperature<330) {
+         Temperature_color = '#FF9999';
+      } else if (Temperature<340) {
+         Temperature_color = '#FF6666';
+      } else if (Temperature<350) {
+         Temperature_color = '#FF3333';
+      } else {
+         Temperature_color = '#FF0000';
+      }
+      reactor.fillStyle=Temperature_color;
+      reactor.fillRect(120,50,160,100);
+      reactor.strokeStyle = "#ffffff";
+      reactor.stroke();
+
+      cooling_border.lineWidth=1;
+      cooling_border.beginPath();
+      cooling_border.moveTo(100,50);
+      cooling_border.lineTo(100,170);
+      cooling_border.lineTo(300,170);
+      cooling_border.lineTo(300,50);
+      cooling_border.strokeStyle = "#000000";
+      cooling_border.stroke();
+
+      reactor_border.lineWidth=1;
+      reactor_border.beginPath();
+      reactor_border.moveTo(120,50);
+      reactor_border.lineTo(120,150);
+      reactor_border.lineTo(280,150);
+      reactor_border.lineTo(280,50);
+      reactor_border.strokeStyle = "#000000";
+      reactor_border.stroke();
+
+      inlet.lineWidth=2;
+      inlet.beginPath();
+      inlet.moveTo(50,25);
+      inlet.lineTo(150,25);
+      inlet.lineTo(150,50);
+      inlet.lineTo(145,45);
+      inlet.lineTo(155,45);
+      inlet.lineTo(150,50);
+      inlet.strokeStyle = "#000000";
+      inlet.stroke();
+
+      outlet.lineWidth=2;
+      outlet.beginPath();
+      outlet.moveTo(280,130);
+      outlet.lineTo(350,130);
+      outlet.lineTo(345,125);
+      outlet.lineTo(345,135);
+      outlet.lineTo(350,130);
+      outlet.strokeStyle = "#000000";
+      outlet.stroke();
+
+      //document.getElementById("Cooling_Temp_msg").innerHTML = "Cooling Jacket Temperature: " + Cooling_Temp;      //document.getElementById("Temperature_msg").innerHTML = "Inner Reactor Temperature : " + Temperature;
+
+      text_Cooling_Temp.clearRect(110,180,150,10);
+      text_Cooling_Temp.fillStyle = '#000';
+      text_Cooling_Temp.font = '10px arial';
+      text_Cooling_Temp.textBaseline = 'top';
+      text_Cooling_Temp.fillText('Cooling='+Math.round(Cooling_Temp) + 'K',110,180);
+
+      text_Temperature.clearRect(250,25,150,10);
+      text_Temperature.fillStyle = '#000';
+      text_Temperature.font = '10px arial';
+      text_Temperature.textBaseline = 'top';
+      text_Temperature.fillText('Reactor='+Math.round(Temperature)+'K',250,25);
+
+      if (Concentration<0.2) {
+         Concentration_color = '#0000AA';
+      } else if (Concentration<0.3) {
+         Concentration_color = '#0066AA';
+      } else if (Concentration<0.4) {
+         Concentration_color = '#00CCAA';
+      } else if (Concentration<0.5) {
+         Concentration_color = '#33AAAA';
+      } else if (Concentration<0.6) {
+         Concentration_color = '#99AAAA';
+      } else if (Concentration<0.7) {
+         Concentration_color = '#AACCAA';
+      } else if (Concentration<0.8) {
+         Concentration_color = '#AACCCC';
+      } else if (Concentration<0.85) {
+         Concentration_color = '#AA9999';
+      } else if (Concentration<0.90) {
+         Concentration_color = '#AA6666';
+      } else if (Concentration<0.95) {
+         Concentration_color = '#AA3333';
+      } else {
+         Concentration_color = '#FF0000';
+      }
+      text_Conc.clearRect(310,150,90,10);
+      text_Conc.fillStyle = Concentration_color;
+      text_Conc.font = '10px arial';
+      text_Conc.textBaseline = 'top';
+      text_Conc.fillText('Conc='+Math.round(Concentration*100)/100+'mol/L',310,150);
+    }
+   } 
+  </script>
+ </center>
+
+End File
