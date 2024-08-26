@@ -1,88 +1,100 @@
+# **Machine Learning-Based Nonlinear Model Predictive Control using GRU**
 
-# Nonlinear Model Predictive Controller (NMPC) for Reactor System
+## **Overview**
 
-This repository contains a Python script that implements a Nonlinear Model Predictive Controller (NMPC) for managing the temperature and concentration in a chemical reactor. The controller interacts with the APMonitor server to perform dynamic optimization and control over a series of time steps.
+This project is focused on implementing a Machine Learning-Based Nonlinear Model Predictive Control (NMPC) system using a Gated Recurrent Unit (GRU) neural network. The project is built around a Continuous Stirred-Tank Reactor (CSTR) system, a common chemical reactor model used in various industrial processes.
 
-## Table of Contents
+### **Gated Recurrent Unit (GRU) Neural Networks**
 
-- [Installation](#installation)
-- [Usage](#usage)
-- [Files](#files)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
+Gated Recurrent Units (GRUs) are a type of Recurrent Neural Network (RNN) that are particularly well-suited for processing sequential data. Unlike traditional RNNs, GRUs can capture long-term dependencies more effectively, making them highly useful in time-series forecasting tasks.
 
-## Installation
+#### **Why GRU for NMPC?**
 
-### Prerequisites
+- **Time-Series Prediction**: GRUs are designed to handle sequential data, making them ideal for predicting the future states of a system based on its past states and control inputs. In the context of NMPC, GRUs help predict future system states, which the controller then uses to optimize the control actions.
+  
+- **Efficiency**: GRUs are computationally less expensive than their counterparts, such as Long Short-Term Memory (LSTM) networks, while still offering comparable performance. This efficiency is crucial in real-time control systems where quick decisions are necessary.
 
-- Python 3.x
-- pip (Python package installer)
-- Visual Studio Code (recommended, but not required)
+- **Handling Nonlinearities**: The GRU model can capture the nonlinear behavior of the CSTR system, providing more accurate predictions that are essential for effective control.
 
-### Setup
+### **Project Structure**
 
-1. **Clone the repository**:
+This project is structured into several key steps:
 
-   ```bash
-   git clone https://github.com/jorshimayor/nmpc-controller.git
-   cd nmpc-controller
-   ```
+1. **Data Generation**:
+   - Historical data is generated to represent past system states (e.g., concentration and temperature in the CSTR) and control inputs (e.g., cooling temperature and feed rate).
+   - This data is stored in a CSV file (`data.csv`), which is used for training the GRU model.
 
-2. **Install required Python packages**:
+2. **GRU Model Training**:
+   - A GRU model is trained on the historical data to learn the relationship between past states, control inputs, and future states.
+   - The trained model is then used to predict future system states based on new control inputs.
 
-   In your terminal, run the following command to install the `apm` package:
+3. **Nonlinear Model Predictive Control (NMPC)**:
+   - The GRU model's predictions are integrated into an NMPC framework.
+   - The NMPC optimizes the control inputs (cooling temperature, feed rate) to achieve the desired reactor states (e.g., temperature and concentration).
 
-   ```bash
-   pip install apm
-   ```
+4. **Simulation**:
+   - The system is simulated over a defined period to observe the performance of the NMPC using the GRU model.
+   - This simulation helps to visualize how well the system tracks desired setpoints and responds to disturbances.
 
-## Usage
+5. **Evaluation**:
+   - The performance of the control strategy is evaluated using metrics like Mean Squared Error (MSE) to quantify the accuracy of tracking the desired states.
 
-1. **Open the project in VSCode**:
+### **Running the Project**
 
-   - Launch Visual Studio Code.
-   - Open the project folder (`nmpc-controller`) by selecting `File > Open Folder`.
+To run the project, follow these steps:
 
-2. **Run the script**:
+#### **1. Set Up Your Environment**
 
-   - Open the `nmpc_controller.py` file.
-   - To run the script, press `F5` or click on the `Run` button in the top right corner of the editor.
-   - Alternatively run the command in your termainal:
+- **Install Python**: Make sure Python is installed on your machine.
+- **Create a Virtual Environment** (optional but recommended):
 
-   ```bash
-   python nmpc_controller.py
-    ```
+  ```bash
+  python -m venv myenv
+  source myenv/bin/activate  # On Windows, use `myenv\Scripts\activate`
+  ```
 
-3. **Monitor the output**:
+- **Install Required Libraries**:
 
-   - The script will print the temperature, concentration, and cooling temperature values to the terminal.
-   - If a web viewer is enabled, the URL will be provided in the terminal output. You can open this in your browser to view real-time plots of the control process through this url "<https://byu.apmonitor.com/online/169.150.196.103_nmpc/169.150.196.103_nmpc_oper.htm>".
+  ```bash
+  pip install numpy pandas matplotlib tensorflow scikit-learn
+  ```
 
-## Files
+#### **2. Generate Historical Data**
 
-- `nmpc_controller.py`: The main Python script that runs the NMPC controller.
-- `nmpc.apm`: The APMonitor model file containing the reactor equations and variables.
-- `nmpc.csv`: The CSV file containing initial data for the model.
+- Save the code for generating historical data in a file named `generate_data.py`.
+- Run the script to create the `data.csv` file:
 
-## Project Structure
+  ```bash
+  python generate_data.py
+  ```
 
-```bash
-nmpc-controller/
-│
-├── nmpc_controller.py   # Main script
-├── nmpc.apm             # APMonitor model file
-└── nmpc.csv             # Initial data file
-```
+#### **3. Train the GRU Model**
 
-## Contributing
+- Save the GRU model training code in a file named `train_gru.py`.
+- Run the script to train the GRU model:
 
-Contributions are welcome! If you have suggestions or improvements, feel free to submit a pull request. Please ensure that your changes are well-documented and include tests where applicable.
+  ```bash
+  python train_gru.py
+  ```
 
-## License
+#### **4. Simulate the System**
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+- Save the simulation code in a file named `simulate_nmpc.py`.
+- Run the script to simulate the system and visualize the results:
 
-## Reference
+  ```bash
+  python simulate_nmpc.py
+  ```
 
-[Apm Monitor](https://github.com/APMonitor/apm_server/tree/master)
+#### **5. Evaluate the Results**
+
+- Save the evaluation code in a file named `evaluate_nmpc.py`.
+- Run the script to evaluate the performance:
+
+  ```bash
+  python evaluate_nmpc.py
+  ```
+
+### **Summary**
+
+This project demonstrates the integration of machine learning, specifically GRU networks, into a Nonlinear Model Predictive Control framework for a CSTR system. By following the steps outlined in this README, you can replicate the process and gain insights into how GRUs can be used to enhance the performance of control systems.
